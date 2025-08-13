@@ -1,0 +1,37 @@
+# FastAPI and ASGI
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy[asyncio]==2.0.23
+asyncpg==0.29.0
+alembic==1.12.1
+
+# Redis and Queue
+redis==5.0.1
+rq==1.15.1
+
+# Git and GitHub integration
+gitpython==3.1.40
+PyGithub==1.59.1
+
+# Parsing libraries
+markdown-it-py==3.0.0
+pyyaml==6.0.1
+tomli==2.0.1
+
+# Environment and configuration
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Development tools
+black==23.11.0
+flake8==6.1.0
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# UUID support
+uuid==1.30
