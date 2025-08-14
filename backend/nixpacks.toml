@@ -10,7 +10,9 @@ cmds = [
 
 [phases.build]
 cmds = [
+  "python diagnose_railway.py",
   "python -m alembic upgrade head",
+  "python setup_database.py",
   "python verify_deployment.py"
 ]
 

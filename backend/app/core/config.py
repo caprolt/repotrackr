@@ -45,10 +45,24 @@ class Settings(BaseSettings):
     @validator("DATABASE_URL", "DATABASE_URL_SYNC", pre=True)
     def validate_database_url(cls, v, values):
         """Validate and ensure database URLs are properly set"""
+        # Check if we're in Railway/production environment
+        is_railway = (
+            os.getenv("RAILWAY_ENVIRONMENT") or 
+            os.getenv("ENVIRONMENT") == "production" or
+            os.getenv("RAILWAY_SERVICE_NAME") or
+            os.getenv("PORT")  # Railway always sets PORT
+        )
+        
         if not v:
-            # Check if we're in production (Railway)
-            if os.getenv("ENVIRONMENT") == "production" or os.getenv("RAILWAY_ENVIRONMENT"):
-                raise ValueError("DATABASE_URL is required in production. Please set it in Railway environment variables.")
+            if is_railway:
+                # In Railway, DATABASE_URL should be provided by Railway
+                raise ValueError(
+                    "DATABASE_URL is required in Railway. "
+                    "Please ensure you have added a PostgreSQL service to your Railway project. "
+                    f"Current environment: ENVIRONMENT={os.getenv('ENVIRONMENT')}, "
+                    f"RAILWAY_ENVIRONMENT={os.getenv('RAILWAY_ENVIRONMENT')}, "
+                    f"PORT={os.getenv('PORT')}"
+                )
             else:
                 # Fallback to local development
                 return "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr" if "DATABASE_URL" in values else "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
@@ -58,7 +72,7 @@ class Settings(BaseSettings):
             v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
         
         # Handle Railway's DATABASE_URL format
-        if "DATABASE_URL" in values and "railway.app" in v:
+        if "DATABASE_URL" in values and ("railway.app" in v or is_railway):
             # Railway provides postgresql:// format, convert to asyncpg
             if v.startswith("postgresql://"):
                 v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
@@ -73,13 +87,19 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Debug: Print database URL (without password) for troubleshooting
+print("🔍 Database Configuration Debug Info:")
+print(f"  ENVIRONMENT: {os.getenv('ENVIRONMENT', 'not set')}")
+print(f"  RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'not set')}")
+print(f"  RAILWAY_SERVICE_NAME: {os.getenv('RAILWAY_SERVICE_NAME', 'not set')}")
+print(f"  PORT: {os.getenv('PORT', 'not set')}")
+print(f"  Raw DATABASE_URL from env: {'set' if os.getenv('DATABASE_URL') else 'not set'}")
+
 if settings.DATABASE_URL:
     # Mask password in the URL for security
     import re
     masked_url = re.sub(r':([^@]+)@', ':****@', settings.DATABASE_URL)
-    print(f"Database URL configured: {masked_url}")
+    print(f"✅ Database URL configured: {masked_url}")
 else:
-    print("WARNING: DATABASE_URL is not set!")
-    print(f"Environment variables: DATABASE_URL={os.getenv('DATABASE_URL')}")
-    print(f"Environment: {os.getenv('ENVIRONMENT', 'not set')}")
-    print(f"Railway Environment: {os.getenv('RAILWAY_ENVIRONMENT', 'not set')}")
+    print("❌ WARNING: DATABASE_URL is not set!")
+    print("💡 If you're on Railway, make sure you've added a PostgreSQL service to your project.")
+    print("💡 If you're running locally, make sure you have a local PostgreSQL server running.")
