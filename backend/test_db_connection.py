@@ -25,12 +25,15 @@ async def test_async_connection():
     print(f"Using DATABASE_URL: {masked_url}")
     
     try:
-        # Create async engine
-        engine = create_async_engine(database_url, echo=True)
+        # Import and use the app's database setup
+        from app.db.base import get_async_session_factory
         
-        # Test connection
-        async with engine.begin() as conn:
-            result = await conn.execute(text("SELECT 1"))
+        # Get session factory (this will initialize the engine)
+        async_session_factory = get_async_session_factory()
+        
+        # Test connection using the app's session factory
+        async with async_session_factory() as session:
+            result = await session.execute(text("SELECT 1"))
             print("✅ Async connection successful!")
             return True
             

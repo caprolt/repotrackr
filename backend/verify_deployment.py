@@ -38,27 +38,25 @@ async def verify_database_connection():
     print(f"📋 Final DATABASE_URL: {masked_async_url}")
     
     try:
-        # Create async engine
-        engine = create_async_engine(
-            database_url,
-            echo=True,
-            pool_pre_ping=True,
-            pool_recycle=300,
-        )
+        # Import and use the app's database setup
+        from app.db.base import get_async_session_factory
         
-        # Test connection
-        async with engine.begin() as conn:
-            result = await conn.execute(text("SELECT 1 as test"))
+        # Get session factory (this will initialize the engine)
+        async_session_factory = get_async_session_factory()
+        
+        # Test connection using the app's session factory
+        async with async_session_factory() as session:
+            result = await session.execute(text("SELECT 1 as test"))
             row = result.fetchone()
             print(f"✅ Database connection successful! Test result: {row[0]}")
             
             # Test if we can access the database
-            result = await conn.execute(text("SELECT current_database()"))
+            result = await session.execute(text("SELECT current_database()"))
             db_name = result.fetchone()[0]
             print(f"📊 Connected to database: {db_name}")
             
             # Test if tables exist
-            result = await conn.execute(text("""
+            result = await session.execute(text("""
                 SELECT table_name 
                 FROM information_schema.tables 
                 WHERE table_schema = 'public'
@@ -66,8 +64,7 @@ async def verify_database_connection():
             """))
             tables = [row[0] for row in result.fetchall()]
             print(f"📋 Available tables: {tables}")
-            
-        await engine.dispose()
+        
         return True
         
     except Exception as e:
