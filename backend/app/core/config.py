@@ -52,6 +52,11 @@ class Settings(BaseSettings):
             else:
                 # Fallback to local development
                 return "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr" if "DATABASE_URL" in values else "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+        
+        # Ensure DATABASE_URL uses asyncpg for async operations
+        if "DATABASE_URL" in values and v.startswith("postgresql://"):
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
         return v
     
     class Config:

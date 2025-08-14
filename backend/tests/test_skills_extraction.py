@@ -22,7 +22,7 @@ Django==4.2.0
 Flask>=2.3.0
 
 # Database
-psycopg2-binary
+asyncpg
 redis
 
 # Testing
@@ -33,7 +33,7 @@ pytest>=7.0.0
         assert len(packages) == 5
         assert any(p.name == 'django' for p in packages)
         assert any(p.name == 'flask' for p in packages)
-        assert any(p.name == 'psycopg2-binary' for p in packages)
+        assert any(p.name == 'asyncpg' for p in packages)
         assert any(p.name == 'redis' for p in packages)
         assert any(p.name == 'pytest' for p in packages)
     

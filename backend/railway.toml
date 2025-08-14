@@ -19,4 +19,7 @@ cmds = [
 ]
 
 [phases.build]
-cmds = ["python -m alembic upgrade head"]
+cmds = [
+  "python -m alembic upgrade head",
+  "python verify_deployment.py"
+]

@@ -27,7 +27,7 @@ class ManifestParser:
         self.popular_packages = {
             # Python packages
             'django', 'flask', 'fastapi', 'requests', 'pandas', 'numpy', 'pytest',
-            'sqlalchemy', 'alembic', 'psycopg2', 'redis', 'celery', 'uvicorn',
+            'sqlalchemy', 'alembic', 'asyncpg', 'redis', 'celery', 'uvicorn',
             # Node.js packages
             'react', 'vue', 'angular', 'express', 'next', 'typescript', 'jest',
             'tailwindcss', 'axios', 'lodash', 'moment', 'webpack', 'vite',

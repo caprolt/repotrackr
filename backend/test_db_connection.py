@@ -5,7 +5,7 @@ Database connection test script for debugging Railway deployment
 
 import os
 import asyncio
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
@@ -39,39 +39,10 @@ async def test_async_connection():
         return False
 
 def test_sync_connection():
-    """Test sync database connection"""
+    """Test sync database connection (disabled - using async only)"""
     print("Testing sync database connection...")
-    
-    # Get DATABASE_URL from environment
-    database_url = os.getenv('DATABASE_URL')
-    if not database_url:
-        print("ERROR: DATABASE_URL environment variable is not set!")
-        return False
-    
-    # Convert async URL to sync URL
-    if database_url.startswith('postgresql+asyncpg://'):
-        sync_url = database_url.replace('postgresql+asyncpg://', 'postgresql://')
-    else:
-        sync_url = database_url
-    
-    # Mask password for security
-    import re
-    masked_url = re.sub(r':([^@]+)@', ':****@', sync_url)
-    print(f"Using sync DATABASE_URL: {masked_url}")
-    
-    try:
-        # Create sync engine
-        engine = create_engine(sync_url, echo=True)
-        
-        # Test connection
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT 1"))
-            print("✅ Sync connection successful!")
-            return True
-            
-    except Exception as e:
-        print(f"❌ Sync connection failed: {e}")
-        return False
+    print("⚠️  Sync connection test disabled - using async only")
+    return True
 
 def print_environment_info():
     """Print environment information for debugging"""
@@ -91,16 +62,15 @@ async def main():
     # Print environment info
     print_environment_info()
     
-    # Test connections
-    sync_success = test_sync_connection()
+    # Test async connection only
     async_success = await test_async_connection()
     
     print("\n" + "=" * 40)
-    if sync_success and async_success:
-        print("✅ All database connections successful!")
+    if async_success:
+        print("✅ Async database connection successful!")
         return True
     else:
-        print("❌ Some database connections failed!")
+        print("❌ Async database connection failed!")
         return False
 
 if __name__ == "__main__":
