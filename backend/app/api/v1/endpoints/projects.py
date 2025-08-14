@@ -11,7 +11,13 @@ from app.schemas.project import (
     ProjectListResponse,
     ProjectUpdate
 )
+from app.schemas.skill import (
+    SkillsResponse,
+    SkillsOverviewResponse,
+    PopularSkillResponse
+)
 from app.services.processing_pipeline import PlanProcessingPipeline
+from app.services.skills_extraction_pipeline import SkillsExtractionPipeline
 
 router = APIRouter()
 
@@ -389,3 +395,144 @@ async def get_project_progress(
         ],
         "total": len(snapshots)
     }
+
+
+@router.get("/{project_id}/skills", response_model=SkillsResponse)
+async def get_project_skills(
+    project_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get all skills for a project"""
+    try:
+        import uuid
+        project_uuid = uuid.UUID(project_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid project ID format"
+        )
+    
+    # Check if project exists
+    result = await db.execute(
+        select(Project).where(Project.id == project_uuid)
+    )
+    project = result.scalar_one_or_none()
+    
+    if not project:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+    
+    # Get skills
+    skills_extractor = SkillsExtractionPipeline()
+    skills = await skills_extractor.get_project_skills(project_id, db)
+    
+    # Group skills by category
+    categories = {}
+    for skill in skills:
+        if skill.category not in categories:
+            categories[skill.category] = 0
+        categories[skill.category] += 1
+    
+    return SkillsResponse(
+        skills=[
+            {
+                "id": str(uuid.uuid4()),  # Generate a temporary ID for response
+                "project_id": project_id,
+                "name": skill.name,
+                "category": skill.category,
+                "confidence": skill.confidence,
+                "source": skill.source,
+                "created_at": datetime.utcnow()
+            }
+            for skill in skills
+        ],
+        total=len(skills),
+        categories=categories
+    )
+
+
+@router.post("/{project_id}/extract-skills")
+async def extract_project_skills(
+    project_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Trigger skills extraction for a project"""
+    try:
+        import uuid
+        project_uuid = uuid.UUID(project_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid project ID format"
+        )
+    
+    # Check if project exists
+    result = await db.execute(
+        select(Project).where(Project.id == project_uuid)
+    )
+    project = result.scalar_one_or_none()
+    
+    if not project:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+    
+    try:
+        # Extract skills
+        skills_extractor = SkillsExtractionPipeline()
+        repo_path = await skills_extractor.repository_manager.clone_repository(project.repo_url)
+        
+        try:
+            skills = await skills_extractor.extract_skills_from_project(project_id, repo_path, db)
+            
+            return {
+                "message": "Skills extracted successfully",
+                "skills_count": len(skills),
+                "project_id": project_id
+            }
+            
+        finally:
+            # Clean up repository
+            await skills_extractor.repository_manager.cleanup_repository(repo_path)
+            
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to extract skills: {str(e)}"
+        )
+
+
+@router.get("/skills/categories")
+async def get_skill_categories(
+    db: AsyncSession = Depends(get_db)
+):
+    """Get all skill categories"""
+    skills_extractor = SkillsExtractionPipeline()
+    categories = await skills_extractor.get_skills_by_category(db)
+    
+    return {
+        "categories": categories,
+        "total_categories": len(categories)
+    }
+
+
+@router.get("/skills/popular", response_model=List[PopularSkillResponse])
+async def get_popular_skills(
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get most popular skills across all projects"""
+    skills_extractor = SkillsExtractionPipeline()
+    popular_skills = await skills_extractor.get_popular_skills(db, limit)
+    
+    return [
+        PopularSkillResponse(
+            name=skill['name'],
+            category=skill['category'],
+            count=skill['count']
+        )
+        for skill in popular_skills
+    ]

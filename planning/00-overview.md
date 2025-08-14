@@ -7,14 +7,14 @@ RepoTrackr is an automated project tracking system that connects to GitHub repos
 - **Frontend**: Next.js (React) with App Router
 - **Backend**: FastAPI (Python) with async support
 - **Database**: PostgreSQL with SQLAlchemy ORM
-- **Queue**: Redis + RQ for background processing
+- **Background Processing**: FastAPI BackgroundTasks + Database job tracking
 - **Git Integration**: gitpython + GitHub API
 - **Parsing**: markdown-it-py, PyYAML, tomli
 
 ## Development Timeline
 **Total Estimated Timeline**: 18 weeks (4.5 months)
 **Team Size**: 1-2 developers
-**Technology Stack**: FastAPI + Next.js + PostgreSQL + Redis
+**Technology Stack**: FastAPI + Next.js + PostgreSQL
 **Deployment Target**: Fly.io/Render with custom domain
 
 ## Phase Structure

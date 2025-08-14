@@ -12,6 +12,7 @@ from app.db.models import Project, Task as DBTask, ProgressSnapshot as DBProgres
 from app.services.repository_manager import RepositoryManager
 from app.services.task_extractor import TaskExtractor, Task
 from app.services.progress_calculator import ProgressCalculator, ProgressSnapshot
+from app.services.skills_extraction_pipeline import SkillsExtractionPipeline
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ class PlanProcessingPipeline:
         self.repository_manager = RepositoryManager()
         self.task_extractor = TaskExtractor()
         self.progress_calculator = ProgressCalculator()
+        self.skills_extractor = SkillsExtractionPipeline()
     
     async def process_project(self, project_id: str, db: AsyncSession) -> ProcessingResult:
         """
@@ -65,6 +67,14 @@ class PlanProcessingPipeline:
             
             # Calculate progress
             progress_snapshot = await self.progress_calculator.calculate_progress(tasks)
+            
+            # Extract skills from repository
+            repo_path = await self.repository_manager.clone_repository(project.repo_url)
+            try:
+                skills = await self.skills_extractor.extract_skills_from_project(project_id, repo_path, db)
+            finally:
+                # Clean up repository after skills extraction
+                await self.repository_manager.cleanup_repository(repo_path)
             
             # Store tasks and progress in database
             await self._store_tasks_and_progress(project_id, tasks, progress_snapshot, db)

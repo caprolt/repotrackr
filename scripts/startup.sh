@@ -2,6 +2,7 @@
 
 # RepoTrackr Startup Script
 # This script sets up and starts the entire RepoTrackr application
+# Supports both Supabase and local database modes
 
 set -e  # Exit on any error
 
@@ -34,6 +35,19 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Function to detect database mode
+detect_database_mode() {
+    if [ -f "backend/.env" ]; then
+        if grep -q "SUPABASE_URL" backend/.env && grep -q "SUPABASE_URL=.*[^[:space:]]" backend/.env; then
+            echo "supabase"
+        else
+            echo "local"
+        fi
+    else
+        echo "local"
+    fi
+}
+
 # Function to check prerequisites
 check_prerequisites() {
     print_status "Checking prerequisites..."
@@ -48,16 +62,20 @@ check_prerequisites() {
         missing_deps+=("Node.js 18+")
     fi
     
-    if ! command_exists docker; then
-        missing_deps+=("Docker")
-    fi
-    
-    if ! command_exists docker-compose; then
-        missing_deps+=("Docker Compose")
-    fi
-    
     if ! command_exists git; then
         missing_deps+=("Git")
+    fi
+    
+    # Docker is only required for local database mode
+    local db_mode=$(detect_database_mode)
+    if [ "$db_mode" = "local" ]; then
+        if ! command_exists docker; then
+            missing_deps+=("Docker")
+        fi
+        
+        if ! command_exists docker-compose; then
+            missing_deps+=("Docker Compose")
+        fi
     fi
     
     if [ ${#missing_deps[@]} -ne 0 ]; then
@@ -77,7 +95,14 @@ check_prerequisites() {
 check_ports() {
     print_status "Checking if required ports are available..."
     
-    local ports=("8000" "3000" "5432" "6379")
+    local ports=("8000" "3000")
+    local db_mode=$(detect_database_mode)
+    
+    # Add database ports only for local mode
+    if [ "$db_mode" = "local" ]; then
+        ports+=("5432" "6379")
+    fi
+    
     local occupied_ports=()
     
     for port in "${ports[@]}"; do
@@ -103,30 +128,36 @@ check_ports() {
     print_success "Ports are available"
 }
 
-# Function to start Docker services
+# Function to start Docker services (local mode only)
 start_docker_services() {
-    print_status "Starting Docker services (PostgreSQL and Redis)..."
+    local db_mode=$(detect_database_mode)
     
-    if [ ! -f "docker-compose.yml" ]; then
-        print_error "docker-compose.yml not found. Make sure you're in the project root directory."
-        exit 1
+    if [ "$db_mode" = "local" ]; then
+        print_status "Starting Docker services (PostgreSQL and Redis)..."
+        
+        if [ ! -f "docker-compose.yml" ]; then
+            print_error "docker-compose.yml not found. Make sure you're in the project root directory."
+            exit 1
+        fi
+        
+        # Start services in detached mode
+        docker-compose up -d postgres redis
+        
+        # Wait for services to be ready
+        print_status "Waiting for services to be ready..."
+        sleep 10
+        
+        # Check if services are running
+        if ! docker-compose ps | grep -q "Up"; then
+            print_error "Failed to start Docker services"
+            docker-compose logs
+            exit 1
+        fi
+        
+        print_success "Docker services are running"
+    else
+        print_success "Using Supabase database - no Docker services needed"
     fi
-    
-    # Start services in detached mode
-    docker-compose up -d
-    
-    # Wait for services to be ready
-    print_status "Waiting for services to be ready..."
-    sleep 10
-    
-    # Check if services are running
-    if ! docker-compose ps | grep -q "Up"; then
-        print_error "Failed to start Docker services"
-        docker-compose logs
-        exit 1
-    fi
-    
-    print_success "Docker services are running"
 }
 
 # Function to setup backend
@@ -143,7 +174,7 @@ setup_backend() {
     
     # Activate virtual environment
     print_status "Activating virtual environment..."
-    source ../backend/venv/Scripts/activate
+    source venv/bin/activate
     
     # Install dependencies
     print_status "Installing Python dependencies..."
@@ -158,6 +189,14 @@ setup_backend() {
         else
             print_warning "No .env.example found. You may need to create .env manually."
         fi
+    fi
+    
+    # Check database mode and provide guidance
+    local db_mode=$(detect_database_mode)
+    if [ "$db_mode" = "supabase" ]; then
+        print_success "Supabase mode detected - using cloud database"
+    else
+        print_warning "Local database mode detected - make sure Docker services are running"
     fi
     
     # Run database migrations
@@ -189,7 +228,7 @@ start_backend() {
     cd backend
     
     # Activate virtual environment
-    source ../backend/venv/Scripts/activate
+    source venv/bin/activate
     
     # Start the server in background
     nohup python start.py > ../logs/backend.log 2>&1 &
@@ -243,8 +282,12 @@ create_logs_directory() {
 
 # Function to show final status
 show_status() {
+    local db_mode=$(detect_database_mode)
+    
     echo ""
     print_success "RepoTrackr startup complete!"
+    echo ""
+    echo "Database Mode: $db_mode"
     echo ""
     echo "Services are running at:"
     echo "  - Frontend: http://localhost:3000"
@@ -254,6 +297,16 @@ show_status() {
     echo "Log files:"
     echo "  - Backend: logs/backend.log"
     echo "  - Frontend: logs/frontend.log"
+    echo ""
+    if [ "$db_mode" = "supabase" ]; then
+        echo "Database: Supabase (cloud)"
+        echo "  - No local Docker containers needed"
+        echo "  - Database managed in Supabase dashboard"
+    else
+        echo "Database: Local PostgreSQL + Redis"
+        echo "  - Docker containers running locally"
+        echo "  - To stop database: docker-compose down"
+    fi
     echo ""
     echo "To stop the services, run: ./scripts/shutdown.sh"
     echo ""
@@ -281,10 +334,14 @@ main() {
     echo ""
     
     # Check if we're in the project root
-    if [ ! -f "docker-compose.yml" ] || [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+    if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
         print_error "Please run this script from the project root directory"
         exit 1
     fi
+    
+    # Detect database mode
+    local db_mode=$(detect_database_mode)
+    print_status "Detected database mode: $db_mode"
     
     # Run setup steps
     check_prerequisites

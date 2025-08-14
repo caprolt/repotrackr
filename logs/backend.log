@@ -1,47 +1,118 @@
 INFO:     Will watch for changes in these directories: ['C:\\Users\\tracy\\appdev\\repotrackr\\backend']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [14860] using WatchFiles
-INFO:     Started server process [5176]
+INFO:     Started reloader process [8828] using WatchFiles
+INFO:     Started server process [23372]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     127.0.0.1:62227 - "GET /api/v1/health HTTP/1.1" 404 Not Found
-2025-08-13 23:14:04,373 INFO sqlalchemy.engine.Engine select pg_catalog.version()
-2025-08-13 23:14:04,373 INFO sqlalchemy.engine.Engine [raw sql] ()
-2025-08-13 23:14:04,380 INFO sqlalchemy.engine.Engine select current_schema()
-2025-08-13 23:14:04,380 INFO sqlalchemy.engine.Engine [raw sql] ()
-2025-08-13 23:14:04,387 INFO sqlalchemy.engine.Engine show standard_conforming_strings
-2025-08-13 23:14:04,387 INFO sqlalchemy.engine.Engine [raw sql] ()
-2025-08-13 23:14:04,391 INFO sqlalchemy.engine.Engine BEGIN (implicit)
-2025-08-13 23:14:04,410 INFO sqlalchemy.engine.Engine SELECT count(projects.id) AS count_1 
+INFO:     127.0.0.1:65067 - "GET /api/v1/health HTTP/1.1" 404 Not Found
+2025-08-13 23:28:43,100 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+2025-08-13 23:28:43,100 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-13 23:28:43,105 INFO sqlalchemy.engine.Engine select current_schema()
+2025-08-13 23:28:43,105 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-13 23:28:43,112 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+2025-08-13 23:28:43,112 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-08-13 23:28:43,117 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:43,139 INFO sqlalchemy.engine.Engine SELECT count(projects.id) AS count_1 
 FROM projects
-2025-08-13 23:14:04,411 INFO sqlalchemy.engine.Engine [generated in 0.00034s] ()
-2025-08-13 23:14:04,425 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+2025-08-13 23:28:43,139 INFO sqlalchemy.engine.Engine [generated in 0.00028s] ()
+2025-08-13 23:28:43,151 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:43,151 INFO sqlalchemy.engine.Engine SELECT count(projects.id) AS count_1 
+FROM projects
+2025-08-13 23:28:43,152 INFO sqlalchemy.engine.Engine [cached since 0.01263s ago] ()
+2025-08-13 23:28:43,156 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
 FROM projects ORDER BY projects.created_at DESC 
  LIMIT $1::INTEGER OFFSET $2::INTEGER
-2025-08-13 23:14:04,425 INFO sqlalchemy.engine.Engine [generated in 0.00045s] (20, 0)
-2025-08-13 23:14:04,426 INFO sqlalchemy.engine.Engine BEGIN (implicit)
-2025-08-13 23:14:04,426 INFO sqlalchemy.engine.Engine SELECT count(projects.id) AS count_1 
-FROM projects
-2025-08-13 23:14:04,427 INFO sqlalchemy.engine.Engine [cached since 0.01687s ago] ()
-2025-08-13 23:14:04,437 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+2025-08-13 23:28:43,156 INFO sqlalchemy.engine.Engine [generated in 0.00034s] (20, 0)
+2025-08-13 23:28:43,165 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
 FROM projects ORDER BY projects.created_at DESC 
  LIMIT $1::INTEGER OFFSET $2::INTEGER
-2025-08-13 23:14:04,437 INFO sqlalchemy.engine.Engine [cached since 0.01264s ago] (20, 0)
-INFO:     127.0.0.1:62295 - "GET /api/v1/projects/?limit=20&offset=0 HTTP/1.1" 200 OK
-2025-08-13 23:14:04,490 INFO sqlalchemy.engine.Engine ROLLBACK
-INFO:     127.0.0.1:62293 - "GET /api/v1/projects/?limit=20&offset=0 HTTP/1.1" 200 OK
-2025-08-13 23:14:04,501 INFO sqlalchemy.engine.Engine ROLLBACK
-2025-08-13 23:14:13,251 INFO sqlalchemy.engine.Engine BEGIN (implicit)
-2025-08-13 23:14:13,254 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+2025-08-13 23:28:43,165 INFO sqlalchemy.engine.Engine [cached since 0.009564s ago] (20, 0)
+INFO:     127.0.0.1:65132 - "GET /api/v1/projects/?limit=20&offset=0 HTTP/1.1" 200 OK
+2025-08-13 23:28:43,230 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:65130 - "GET /api/v1/projects/?limit=20&offset=0 HTTP/1.1" 200 OK
+2025-08-13 23:28:43,232 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-08-13 23:28:46,464 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:46,467 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
 FROM projects 
 WHERE projects.id = $1::UUID
-2025-08-13 23:14:13,254 INFO sqlalchemy.engine.Engine [generated in 0.00069s] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
-2025-08-13 23:14:13,260 INFO sqlalchemy.engine.Engine BEGIN (implicit)
-2025-08-13 23:14:13,260 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+2025-08-13 23:28:46,467 INFO sqlalchemy.engine.Engine [generated in 0.00076s] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+2025-08-13 23:28:46,471 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:46,472 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
 FROM projects 
 WHERE projects.id = $1::UUID
-2025-08-13 23:14:13,261 INFO sqlalchemy.engine.Engine [cached since 0.00705s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
-INFO:     127.0.0.1:62320 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68 HTTP/1.1" 200 OK
-2025-08-13 23:14:13,264 INFO sqlalchemy.engine.Engine ROLLBACK
-INFO:     127.0.0.1:62321 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68 HTTP/1.1" 200 OK
-2025-08-13 23:14:13,270 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-08-13 23:28:46,472 INFO sqlalchemy.engine.Engine [cached since 0.005977s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+INFO:     127.0.0.1:65132 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68 HTTP/1.1" 200 OK
+2025-08-13 23:28:46,480 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-08-13 23:28:46,491 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:46,492 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+FROM projects 
+WHERE projects.id = $1::UUID
+2025-08-13 23:28:46,493 INFO sqlalchemy.engine.Engine [cached since 0.02632s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+2025-08-13 23:28:46,508 INFO sqlalchemy.engine.Engine SELECT tasks.id, tasks.project_id, tasks.title, tasks.status, tasks.file_path, tasks.line_number, tasks.commit_hash, tasks.created_at 
+FROM tasks 
+WHERE tasks.project_id = $1::UUID ORDER BY tasks.created_at
+2025-08-13 23:28:46,508 INFO sqlalchemy.engine.Engine [generated in 0.00061s] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+2025-08-13 23:28:46,516 INFO sqlalchemy.engine.Engine SELECT tasks.id, tasks.project_id, tasks.title, tasks.status, tasks.file_path, tasks.line_number, tasks.commit_hash, tasks.created_at 
+FROM tasks 
+WHERE tasks.project_id = $1::UUID ORDER BY tasks.created_at
+2025-08-13 23:28:46,516 INFO sqlalchemy.engine.Engine [cached since 0.00876s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+INFO:     127.0.0.1:65130 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68/tasks HTTP/1.1" 200 OK
+2025-08-13 23:28:46,816 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:65150 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68/tasks HTTP/1.1" 200 OK
+2025-08-13 23:28:46,831 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-08-13 23:28:46,835 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:46,836 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+FROM projects 
+WHERE projects.id = $1::UUID
+2025-08-13 23:28:46,836 INFO sqlalchemy.engine.Engine [cached since 0.3695s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+2025-08-13 23:28:46,838 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:46,839 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+FROM projects 
+WHERE projects.id = $1::UUID
+2025-08-13 23:28:46,839 INFO sqlalchemy.engine.Engine [cached since 0.3729s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+2025-08-13 23:28:46,842 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:28:46,842 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+FROM projects 
+WHERE projects.id = $1::UUID
+2025-08-13 23:28:46,842 INFO sqlalchemy.engine.Engine [cached since 0.3761s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'),)
+2025-08-13 23:28:46,917 INFO sqlalchemy.engine.Engine SELECT progress_snapshots.id, progress_snapshots.project_id, progress_snapshots.percentage_complete, progress_snapshots.tasks_total, progress_snapshots.tasks_done, progress_snapshots.tasks_doing, progress_snapshots.tasks_todo, progress_snapshots.tasks_blocked, progress_snapshots.created_at 
+FROM progress_snapshots 
+WHERE progress_snapshots.project_id = $1::UUID ORDER BY progress_snapshots.created_at DESC 
+ LIMIT $2::INTEGER
+2025-08-13 23:28:46,917 INFO sqlalchemy.engine.Engine [generated in 0.00050s] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'), 10)
+2025-08-13 23:28:46,921 INFO sqlalchemy.engine.Engine SELECT progress_snapshots.id, progress_snapshots.project_id, progress_snapshots.percentage_complete, progress_snapshots.tasks_total, progress_snapshots.tasks_done, progress_snapshots.tasks_doing, progress_snapshots.tasks_todo, progress_snapshots.tasks_blocked, progress_snapshots.created_at 
+FROM progress_snapshots 
+WHERE progress_snapshots.project_id = $1::UUID ORDER BY progress_snapshots.created_at DESC 
+ LIMIT $2::INTEGER
+2025-08-13 23:28:46,922 INFO sqlalchemy.engine.Engine [cached since 0.00476s ago] (UUID('da9994ad-6fc1-45d0-a16f-fd3ace215c68'), 10)
+INFO:     127.0.0.1:65149 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68/progress?limit=10 HTTP/1.1" 200 OK
+2025-08-13 23:28:46,932 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:65151 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68/progress?limit=10 HTTP/1.1" 200 OK
+2025-08-13 23:28:46,936 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:65132 - "GET /api/v1/projects/da9994ad-6fc1-45d0-a16f-fd3ace215c68 HTTP/1.1" 200 OK
+2025-08-13 23:28:46,960 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-08-13 23:29:19,015 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:29:19,015 INFO sqlalchemy.engine.Engine SELECT count(projects.id) AS count_1 
+FROM projects
+2025-08-13 23:29:19,015 INFO sqlalchemy.engine.Engine [cached since 35.88s ago] ()
+2025-08-13 23:29:19,019 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+FROM projects ORDER BY projects.created_at DESC 
+ LIMIT $1::INTEGER OFFSET $2::INTEGER
+2025-08-13 23:29:19,019 INFO sqlalchemy.engine.Engine [cached since 35.86s ago] (20, 0)
+INFO:     127.0.0.1:65246 - "GET /api/v1/projects/?limit=20&offset=0 HTTP/1.1" 200 OK
+2025-08-13 23:29:19,021 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-08-13 23:29:19,027 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-08-13 23:29:19,027 INFO sqlalchemy.engine.Engine SELECT count(projects.id) AS count_1 
+FROM projects
+2025-08-13 23:29:19,027 INFO sqlalchemy.engine.Engine [cached since 35.89s ago] ()
+2025-08-13 23:29:19,033 INFO sqlalchemy.engine.Engine SELECT projects.id, projects.name, projects.repo_url, projects.plan_path, projects.status, projects.last_updated, projects.created_at 
+FROM projects ORDER BY projects.created_at DESC 
+ LIMIT $1::INTEGER OFFSET $2::INTEGER
+2025-08-13 23:29:19,033 INFO sqlalchemy.engine.Engine [cached since 35.88s ago] (20, 0)
+INFO:     127.0.0.1:65246 - "GET /api/v1/projects/?limit=20&offset=0 HTTP/1.1" 200 OK
+2025-08-13 23:29:19,036 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23372]
+INFO:     Stopping reloader process [8828]

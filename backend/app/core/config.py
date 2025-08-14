@@ -15,9 +15,14 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "RepoTrackr"
     VERSION: str = "0.1.0"
     
-    # Database
+    # Database - Support both local and Supabase
     DATABASE_URL: str = "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
     DATABASE_URL_SYNC: str = "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+    
+    # Supabase Configuration (optional)
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_ANON_KEY: str = ""
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -36,6 +41,17 @@ class Settings(BaseSettings):
         elif isinstance(v, (list, str)):
             return v
         raise ValueError(v)
+    
+    @validator("DATABASE_URL", "DATABASE_URL_SYNC", pre=True)
+    def validate_database_url(cls, v, values):
+        """Validate and potentially override database URLs with Supabase"""
+        # If Supabase URL is provided, construct the database URL
+        if values.get("SUPABASE_URL"):
+            # Extract database connection details from Supabase URL
+            # Supabase format: postgresql://postgres:[password]@[host]:5432/postgres
+            # We'll use environment variables for the actual connection
+            pass
+        return v
     
     class Config:
         env_file = ".env"

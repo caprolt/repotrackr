@@ -23,14 +23,14 @@ This final phase focuses on deploying RepoTrackr to production, including enviro
 
 ### Tasks
 - [ ] Set up production PostgreSQL database
-- [ ] Configure production Redis instance
+- [ ] Configure production background processing
 - [ ] Set up monitoring and logging
 - [ ] Implement health check endpoints
 - [ ] Configure production environment variables
 
 ### Technical Details
 - **Production Database**: Managed PostgreSQL service (AWS RDS, Google Cloud SQL, etc.)
-- **Production Redis**: Managed Redis service (AWS ElastiCache, Google Cloud Memorystore, etc.)
+- **Background Processing**: FastAPI BackgroundTasks with database job tracking
 - **Monitoring**: Application performance monitoring and logging
 - **Health Checks**: Comprehensive health check endpoints
 - **Environment Management**: Secure environment variable management
@@ -57,22 +57,8 @@ services:
       timeout: 10s
       retries: 3
 
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
 volumes:
   postgres_data:
-  redis_data:
 ```
 
 ### Environment Configuration
@@ -82,9 +68,8 @@ volumes:
 DATABASE_URL=postgresql://repotrackr:${POSTGRES_PASSWORD}@localhost:5432/repotrackr_prod
 POSTGRES_PASSWORD=your-secure-password
 
-# Redis
-REDIS_URL=redis://:${REDIS_PASSWORD}@localhost:6379/0
-REDIS_PASSWORD=your-redis-password
+# Background Processing
+# No additional configuration needed - uses database for job tracking
 
 # Application
 SECRET_KEY=your-secret-key
@@ -122,21 +107,13 @@ async def health_check() -> dict:
         health_status["checks"]["database"] = f"unhealthy: {str(e)}"
         health_status["status"] = "unhealthy"
     
-    # Redis health check
-    try:
-        await redis.ping()
-        health_status["checks"]["redis"] = "healthy"
-    except Exception as e:
-        health_status["checks"]["redis"] = f"unhealthy: {str(e)}"
-        health_status["status"] = "unhealthy"
-    
-    # Queue health check
+    # Job queue health check
     try:
         queue_status = await get_queue_status()
-        health_status["checks"]["queue"] = "healthy"
+        health_status["checks"]["job_queue"] = "healthy"
         health_status["queue_status"] = queue_status
     except Exception as e:
-        health_status["checks"]["queue"] = f"unhealthy: {str(e)}"
+        health_status["checks"]["job_queue"] = f"unhealthy: {str(e)}"
         health_status["status"] = "unhealthy"
     
     # GitHub API health check
@@ -162,7 +139,7 @@ async def liveness_check() -> dict:
 
 ### Acceptance Criteria
 - [ ] Production database configured
-- [ ] Production Redis configured
+- [ ] Production background processing configured
 - [ ] Monitoring setup complete
 - [ ] Health checks functional
 - [ ] Environment variables secure
@@ -263,11 +240,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - DATABASE_URL=postgresql://repotrackr:password@postgres:5432/repotrackr
-      - REDIS_URL=redis://redis:6379/0
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     ports:
       - "8000:8000"
@@ -286,19 +260,7 @@ services:
     depends_on:
       - backend
 
-  worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: ["python", "-m", "rq", "worker", "repotrackr"]
-    environment:
-      - DATABASE_URL=postgresql://repotrackr:password@postgres:5432/repotrackr
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+  # Note: No separate worker service needed - background tasks run in main process
 
   postgres:
     image: postgres:15
@@ -314,19 +276,8 @@ services:
       timeout: 10s
       retries: 3
 
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
 volumes:
   postgres_data:
-  redis_data:
 ```
 
 ### CI/CD Pipeline
@@ -356,10 +307,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
+      # Note: No Redis service needed for background processing
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -380,7 +328,7 @@ jobs:
     - name: Run tests
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/repotrackr_test
-        REDIS_URL: redis://localhost:6379/0
+        # No Redis URL needed - background processing uses database
       run: |
         pytest --cov=app --cov-report=xml
     
@@ -739,7 +687,7 @@ Get insights into your project portfolio and skill usage.
 
 - Docker and Docker Compose
 - PostgreSQL 15+
-- Redis 7+
+- FastAPI BackgroundTasks (built-in)
 - Domain name (optional)
 
 ## Local Development
@@ -807,7 +755,7 @@ Get insights into your project portfolio and skill usage.
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `REDIS_URL` | Redis connection string | Yes |
+| `REDIS_URL` | Redis connection string | No (not needed) |
 | `SECRET_KEY` | Application secret key | Yes |
 | `GITHUB_APP_ID` | GitHub App ID | Yes |
 | `GITHUB_APP_PRIVATE_KEY` | GitHub App private key | Yes |
@@ -837,10 +785,10 @@ Set up automated backups for your PostgreSQL database:
    - Verify database is running
    - Check firewall settings
 
-2. **Redis connection failed**
-   - Check REDIS_URL format
-   - Verify Redis is running
-   - Check authentication
+2. **Background processing issues**
+   - Check database connection
+   - Verify job tracking table exists
+   - Review job status logs
 
 3. **GitHub webhook failures**
    - Verify webhook URL is accessible
@@ -857,8 +805,7 @@ docker-compose logs backend
 # Frontend logs
 docker-compose logs frontend
 
-# Worker logs
-docker-compose logs worker
+# Note: No separate worker service - background tasks run in main process
 ```
 ```
 

@@ -6,10 +6,11 @@
    - Local:        http://localhost:3000
    - Environments: .env.local
 
- ✓ Ready in 4.1s
+ ✓ Ready in 2.8s
  ○ Compiling / ...
- ✓ Compiled / in 4.9s (439 modules)
- ✓ Compiled in 412ms (216 modules)
+ ✓ Compiled / in 3.7s (439 modules)
+ ✓ Compiled in 419ms (216 modules)
  ○ Compiling /dashboard ...
- ✓ Compiled /dashboard in 549ms (464 modules)
- ✓ Compiled /projects/[id]/edit in 215ms (476 modules)
+ ✓ Compiled /dashboard in 596ms (464 modules)
+ ✓ Compiled /projects/[id] in 240ms (482 modules)
+[?25h

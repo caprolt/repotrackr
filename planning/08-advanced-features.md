@@ -333,14 +333,14 @@ class IssueTaskMapper:
 
 ### Tasks
 - [ ] Implement database query optimization
-- [ ] Add Redis caching for frequent queries
+- [ ] Add database query result caching
 - [ ] Optimize frontend bundle size
 - [ ] Implement lazy loading for large datasets
 - [ ] Add database indexing for performance
 
 ### Technical Details
 - **Query Optimization**: Optimize database queries for better performance
-- **Caching Strategy**: Implement intelligent caching for frequently accessed data
+- **Caching Strategy**: Implement intelligent caching using database for frequently accessed data
 - **Bundle Optimization**: Reduce frontend bundle size and improve loading times
 - **Lazy Loading**: Load data on demand to improve initial page load
 - **Database Indexing**: Add appropriate indexes for better query performance
@@ -392,40 +392,52 @@ CREATE INDEX idx_tasks_project_status ON tasks(project_id, status);
 CREATE INDEX idx_skills_project_category ON skills(project_id, category);
 ```
 
-### Redis Caching Strategy
+### Database Caching Strategy
 ```python
 class CacheManager:
-    def __init__(self, redis_client: Redis):
-        self.redis = redis_client
+    def __init__(self, db: Session):
+        self.db = db
         self.default_ttl = 300  # 5 minutes
     
     async def get_cached_projects(self, user_id: str) -> Optional[List[Project]]:
         """Get cached projects for user"""
         cache_key = f"projects:{user_id}"
-        cached_data = await self.redis.get(cache_key)
         
-        if cached_data:
-            return json.loads(cached_data)
+        # Check cache table for recent results
+        cached_result = await self.db.query(CacheEntry).filter(
+            CacheEntry.key == cache_key,
+            CacheEntry.expires_at > datetime.utcnow()
+        ).first()
+        
+        if cached_result:
+            return json.loads(cached_result.value)
         return None
     
     async def cache_projects(self, user_id: str, projects: List[Project], ttl: int = None) -> None:
         """Cache projects for user"""
         cache_key = f"projects:{user_id}"
         ttl = ttl or self.default_ttl
+        expires_at = datetime.utcnow() + timedelta(seconds=ttl)
         
-        await self.redis.setex(
-            cache_key,
-            ttl,
-            json.dumps([p.dict() for p in projects])
+        # Store in cache table
+        cache_entry = CacheEntry(
+            key=cache_key,
+            value=json.dumps([p.dict() for p in projects]),
+            expires_at=expires_at
         )
+        self.db.add(cache_entry)
+        await self.db.commit()
     
     async def invalidate_user_cache(self, user_id: str) -> None:
         """Invalidate all cache for user"""
         pattern = f"projects:{user_id}"
-        keys = await self.redis.keys(pattern)
         
-        if keys:
-            await self.redis.delete(*keys)
+        # Delete expired cache entries
+        await self.db.query(CacheEntry).filter(
+            CacheEntry.key.like(pattern),
+            CacheEntry.expires_at <= datetime.utcnow()
+        ).delete()
+        await self.db.commit()
 
 # Cache decorator for API endpoints
 def cache_response(ttl: int = 300):
@@ -509,7 +521,7 @@ const useLazyProjects = (page: number, pageSize: number) => {
 
 ### Acceptance Criteria
 - [ ] Database queries optimized
-- [ ] Redis caching implemented
+- [ ] Database caching implemented
 - [ ] Frontend bundle optimized
 - [ ] Lazy loading functional
 - [ ] Database indexes added

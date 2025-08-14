@@ -47,7 +47,7 @@ This directory contains the comprehensive technical planning documentation for t
 | 2 | Weeks 3-4 | Core Engine | Repository parsing, task extraction, progress calculation | ✅ **COMPLETE** |
 | 3 | Weeks 5-6 | Frontend | Next.js app, dashboard, project details | ✅ **COMPLETE** |
 | 4 | Weeks 7-8 | Skills | Manifest parsing, skill categorization, display | 🔄 **NEXT** |
-| 5 | Weeks 9-10 | Automation | Background jobs, Redis queue, manual refresh | ⏳ **PLANNED** |
+| 5 | Weeks 9-10 | Automation | Background tasks, database job tracking, manual refresh | ⏳ **PLANNED** |
 | 6 | Weeks 11-12 | Integration | GitHub webhooks, real-time updates | ⏳ **PLANNED** |
 | 7 | Weeks 13-14 | Polish | Enhanced UI, project creation, timeline charts | ⏳ **PLANNED** |
 | 8 | Weeks 15-16 | Advanced | Multi-repo support, analytics, performance | ⏳ **PLANNED** |
@@ -91,7 +91,7 @@ Each phase is considered complete when:
 ### Backend
 - **Framework**: FastAPI (Python)
 - **Database**: PostgreSQL with SQLAlchemy
-- **Queue**: Redis with RQ
+- **Background Processing**: FastAPI BackgroundTasks + Database job tracking
 - **Git Integration**: GitPython + GitHub API
 
 ### Frontend
@@ -132,7 +132,7 @@ Each phase is considered complete when:
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Redis Documentation](https://redis.io/documentation)
+- [FastAPI Background Tasks](https://fastapi.tiangolo.com/tutorial/background-tasks/)
 
 ### Development Tools
 - [GitHub App Development](https://docs.github.com/en/apps)
