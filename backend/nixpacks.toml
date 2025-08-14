@@ -10,8 +10,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "python test_db_connection.py",
-  "python -m alembic upgrade head"
+  "python -m alembic upgrade head",
+  "python verify_deployment.py"
 ]
 
 [start]

@@ -57,6 +57,12 @@ class Settings(BaseSettings):
         if "DATABASE_URL" in values and v.startswith("postgresql://"):
             v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
         
+        # Handle Railway's DATABASE_URL format
+        if "DATABASE_URL" in values and "railway.app" in v:
+            # Railway provides postgresql:// format, convert to asyncpg
+            if v.startswith("postgresql://"):
+                v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
         return v
     
     class Config:

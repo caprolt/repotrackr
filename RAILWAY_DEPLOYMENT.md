@@ -68,15 +68,24 @@ BACKEND_CORS_ORIGINS=["https://your-app.vercel.app", "http://localhost:3000"]
 1. Railway will automatically detect your Python project
 2. It will use the `nixpacks.toml` configuration for building
 3. The deployment will run:
-   - `pip install -r requirements.txt`
+   - `pip install -r requirements.txt` (install dependencies)
    - `python -m alembic upgrade head` (database migrations)
-   - `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - `python setup_database.py` (verify database setup)
+   - `python verify_deployment.py` (final deployment verification)
+   - `uvicorn app.main:app --host 0.0.0.0 --port $PORT` (start application)
 
 ### 6. Get Your Backend URL
 
 1. After deployment, go to your service dashboard
 2. Copy the generated domain (e.g., `https://your-app-production.up.railway.app`)
 3. This is your backend URL for the frontend configuration
+
+### 7. Verify Database Setup
+
+1. Check the deployment logs for database setup messages
+2. Test the health endpoint: `https://your-app-production.up.railway.app/health`
+3. Verify it returns: `{"status": "healthy", "database": "connected"}`
+4. If database connection fails, check Railway environment variables
 
 ## Configuration Files
 
