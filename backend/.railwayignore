@@ -1,0 +1,30 @@
+# Railway ignore file - ensure these files are NOT ignored
+# This file ensures Railway includes all necessary files for deployment
+
+# Don't ignore Python files
+*.py
+
+# Don't ignore requirements
+requirements.txt
+
+# Don't ignore configuration files
+*.toml
+*.json
+*.yaml
+*.yml
+
+# Don't ignore environment files
+.env*
+
+# Don't ignore database migrations
+alembic/
+migrations/
+
+# Don't ignore app directory
+app/
+
+# Don't ignore tests (they might be needed)
+tests/
+
+# Don't ignore documentation
+*.md

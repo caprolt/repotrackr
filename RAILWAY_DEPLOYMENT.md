@@ -49,7 +49,8 @@ API_V1_STR=/api/v1
 PROJECT_NAME=RepoTrackr
 VERSION=0.1.0
 
-# CORS settings (replace with your actual Vercel domain)
+# CORS settings (replace with your actual Vercel frontend domain)
+# The frontend (Vercel) makes requests to this backend (Railway)
 BACKEND_CORS_ORIGINS=["https://your-app.vercel.app", "http://localhost:3000"]
 
 # Optional: GitHub integration
@@ -94,9 +95,16 @@ Your project includes these Railway-specific files:
 - `PORT` - Port number for the application
 
 ### Required Manual Variables
-- `BACKEND_CORS_ORIGINS` - CORS origins (include your Vercel domain)
+- `BACKEND_CORS_ORIGINS` - CORS origins (include your Vercel frontend domain)
 - `DEBUG` - Set to `false` for production
 - `ENVIRONMENT` - Set to `production`
+
+### CORS Configuration Explained
+Since you're deploying:
+- **Backend** → Railway (`https://your-app-production.up.railway.app`)
+- **Frontend** → Vercel (`https://your-app.vercel.app`)
+
+The `BACKEND_CORS_ORIGINS` should include your **Vercel domain** because that's where the API requests originate from.
 
 ### Optional Variables
 - `GITHUB_TOKEN` - For GitHub API access
@@ -134,6 +142,12 @@ NEXT_PUBLIC_API_URL=https://your-app-production.up.railway.app
    - Check Railway build logs
    - Verify `requirements.txt` is in the backend directory
    - Ensure Python version compatibility
+
+2. **"pip: command not found" Error**
+   - Railway might not be detecting Python properly
+   - Try redeploying with the updated configuration files
+   - Check that `nixpacks.toml` and `railway.toml` are in the backend directory
+   - Ensure the root directory is set to `backend` in Railway dashboard
 
 2. **Database Connection Issues**
    - Verify `DATABASE_URL` is set correctly

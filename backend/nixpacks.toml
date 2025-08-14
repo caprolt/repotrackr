@@ -2,7 +2,11 @@
 nixPkgs = ["python311", "postgresql", "redis"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = [
+  "python --version",
+  "pip --version", 
+  "pip install -r requirements.txt"
+]
 
 [phases.build]
 cmds = ["python -m alembic upgrade head"]

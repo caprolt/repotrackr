@@ -27,7 +27,7 @@
 - [ ] `API_V1_STR=/api/v1`
 - [ ] `PROJECT_NAME=RepoTrackr`
 - [ ] `VERSION=0.1.0`
-- [ ] `BACKEND_CORS_ORIGINS=["https://your-app.vercel.app", "http://localhost:3000"]`
+- [ ] `BACKEND_CORS_ORIGINS=["https://your-app.vercel.app", "http://localhost:3000"]` (Vercel frontend domain)
 
 ## Automatic Variables (Railway provides) ✅
 

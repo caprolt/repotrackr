@@ -7,3 +7,16 @@ healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+
+[phases.setup]
+nixPkgs = ["python311", "postgresql", "redis"]
+
+[phases.install]
+cmds = [
+  "python --version",
+  "pip --version", 
+  "pip install -r requirements.txt"
+]
+
+[phases.build]
+cmds = ["python -m alembic upgrade head"]
