@@ -2,7 +2,31 @@
 
 ## 🚀 Quick Start
 
-Want to get up and running immediately? Follow these steps:
+Want to get up and running immediately? Use our automated scripts:
+
+### **Option 1: Automated Scripts (Recommended)**
+
+**For Linux/macOS:**
+```bash
+# Clone and setup
+git clone <repository-url>
+cd repotrackr
+
+# Start everything with one command
+./scripts/startup.sh
+```
+
+**For Windows:**
+```cmd
+# Clone and setup
+git clone <repository-url>
+cd repotrackr
+
+# Start everything with one command
+scripts\startup.bat
+```
+
+### **Option 2: Manual Setup**
 
 ```bash
 # 1. Clone and setup
@@ -31,6 +55,10 @@ npm run dev
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 - API Docs: http://localhost:8000/api/v1/docs
+
+**Manage services:**
+- Check status: `./scripts/status.sh` (Linux/macOS) or `scripts\status.bat` (Windows)
+- Stop services: `./scripts/shutdown.sh` (Linux/macOS) or `scripts\shutdown.bat` (Windows)
 
 For detailed setup instructions, see [Section 7: Testing and Running the Application](#7-testing-and-running-the-application).
 

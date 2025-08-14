@@ -4,9 +4,10 @@ uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
 # Database
-sqlalchemy[asyncio]==2.0.23
-asyncpg==0.29.0
-alembic==1.12.1
+sqlalchemy[asyncio]>=2.0.25
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.9
+alembic>=1.13.0
 
 # Redis and Queue
 redis==5.0.1
@@ -23,8 +24,8 @@ tomli==2.0.1
 
 # Environment and configuration
 python-dotenv==1.0.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic>=2.8.0
+pydantic-settings>=2.2.0
 
 # Development tools
 black==23.11.0
