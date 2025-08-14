@@ -15,9 +15,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "RepoTrackr"
     VERSION: str = "0.1.0"
     
-    # Database - Support both local and Supabase
-    DATABASE_URL: str = "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
-    DATABASE_URL_SYNC: str = "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+    # Database - Support both local and Railway/Supabase
+    DATABASE_URL: str = ""
+    DATABASE_URL_SYNC: str = ""
     
     # Supabase Configuration (optional)
     SUPABASE_URL: str = ""
@@ -44,13 +44,14 @@ class Settings(BaseSettings):
     
     @validator("DATABASE_URL", "DATABASE_URL_SYNC", pre=True)
     def validate_database_url(cls, v, values):
-        """Validate and potentially override database URLs with Supabase"""
-        # If Supabase URL is provided, construct the database URL
-        if values.get("SUPABASE_URL"):
-            # Extract database connection details from Supabase URL
-            # Supabase format: postgresql://postgres:[password]@[host]:5432/postgres
-            # We'll use environment variables for the actual connection
-            pass
+        """Validate and ensure database URLs are properly set"""
+        if not v:
+            # Check if we're in production (Railway)
+            if os.getenv("ENVIRONMENT") == "production" or os.getenv("RAILWAY_ENVIRONMENT"):
+                raise ValueError("DATABASE_URL is required in production. Please set it in Railway environment variables.")
+            else:
+                # Fallback to local development
+                return "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr" if "DATABASE_URL" in values else "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
         return v
     
     class Config:
@@ -59,3 +60,15 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Debug: Print database URL (without password) for troubleshooting
+if settings.DATABASE_URL:
+    # Mask password in the URL for security
+    import re
+    masked_url = re.sub(r':([^@]+)@', ':****@', settings.DATABASE_URL)
+    print(f"Database URL configured: {masked_url}")
+else:
+    print("WARNING: DATABASE_URL is not set!")
+    print(f"Environment variables: DATABASE_URL={os.getenv('DATABASE_URL')}")
+    print(f"Environment: {os.getenv('ENVIRONMENT', 'not set')}")
+    print(f"Railway Environment: {os.getenv('RAILWAY_ENVIRONMENT', 'not set')}")

@@ -149,6 +149,12 @@ NEXT_PUBLIC_API_URL=https://your-app-production.up.railway.app
    - Check that `nixpacks.toml` and `railway.toml` are in the backend directory
    - Ensure the root directory is set to `backend` in Railway dashboard
 
+3. **Database Connection Error (localhost)**
+   - The app is trying to connect to localhost instead of Railway's database
+   - Check that `DATABASE_URL` environment variable is set in Railway
+   - Verify the PostgreSQL service is added to your Railway project
+   - The updated config will now fail fast with a clear error message if DATABASE_URL is missing
+
 2. **Database Connection Issues**
    - Verify `DATABASE_URL` is set correctly
    - Check if PostgreSQL service is running
