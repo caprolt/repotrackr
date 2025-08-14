@@ -1,4 +1,5 @@
 from typing import List, Optional
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -108,6 +109,65 @@ async def get_project(
             status_code=404,
             detail="Project not found"
         )
+    
+    return project
+
+
+@router.put("/{project_id}", response_model=ProjectResponse)
+async def update_project(
+    project_id: str,
+    project_update: ProjectUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    """Update a project"""
+    try:
+        import uuid
+        project_uuid = uuid.UUID(project_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid project ID format"
+        )
+    
+    # Get existing project
+    result = await db.execute(
+        select(Project).where(Project.id == project_uuid)
+    )
+    project = result.scalar_one_or_none()
+    
+    if not project:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+    
+    # Check if repo_url is being updated and if it conflicts with existing project
+    if project_update.repo_url and project_update.repo_url != project.repo_url:
+        existing_project = await db.execute(
+            select(Project).where(Project.repo_url == project_update.repo_url)
+        )
+        if existing_project.scalar_one_or_none():
+            raise HTTPException(
+                status_code=400,
+                detail="A project with this repository URL already exists"
+            )
+    
+    # Update project fields
+    update_data = {}
+    if project_update.name is not None:
+        update_data["name"] = project_update.name
+    if project_update.repo_url is not None:
+        update_data["repo_url"] = project_update.repo_url
+    if project_update.plan_path is not None:
+        update_data["plan_path"] = project_update.plan_path
+    
+    # Update the project
+    for field, value in update_data.items():
+        setattr(project, field, value)
+    
+    project.last_updated = datetime.utcnow()
+    await db.commit()
+    await db.refresh(project)
     
     return project
 

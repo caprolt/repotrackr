@@ -11,7 +11,9 @@ import {
   CheckCircle,
   Circle,
   AlertCircle,
-  XCircle
+  XCircle,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -59,6 +61,22 @@ export default function ProjectDetailPage() {
     } finally {
       setRefreshing(false);
     }
+  };
+
+  const handleDeleteProject = async () => {
+    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      try {
+        await api.deleteProject(projectId);
+        router.push('/dashboard');
+      } catch (err) {
+        console.error('Failed to delete project:', err);
+        setError(err instanceof Error ? err.message : 'Failed to delete project');
+      }
+    }
+  };
+
+  const handleEditProject = () => {
+    router.push(`/projects/${projectId}/edit`);
   };
 
   const getTaskStatusIcon = (status: string) => {
@@ -158,6 +176,22 @@ export default function ProjectDetailPage() {
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleEditProject}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+            <Button 
+              variant="danger" 
+              size="sm"
+              onClick={handleDeleteProject}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
             </Button>
           </div>
         </div>

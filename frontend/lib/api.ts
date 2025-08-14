@@ -62,6 +62,17 @@ export class ApiClient {
     return handleResponse<Project>(response);
   }
 
+  async updateProject(id: string, data: Partial<CreateProjectData>): Promise<Project> {
+    const response = await fetch(`${this.baseUrl}/api/v1/projects/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    return handleResponse<Project>(response);
+  }
+
   async deleteProject(id: string): Promise<void> {
     const response = await fetch(`${this.baseUrl}/api/v1/projects/${id}`, {
       method: 'DELETE',
@@ -109,6 +120,7 @@ export const api = {
   getProjects: (limit?: number, offset?: number) => apiClient.getProjects(limit, offset),
   getProject: (id: string) => apiClient.getProject(id),
   createProject: (data: CreateProjectData) => apiClient.createProject(data),
+  updateProject: (id: string, data: Partial<CreateProjectData>) => apiClient.updateProject(id, data),
   deleteProject: (id: string) => apiClient.deleteProject(id),
   refreshProject: (id: string) => apiClient.refreshProject(id),
   getProjectDetail: (id: string) => apiClient.getProjectDetail(id),

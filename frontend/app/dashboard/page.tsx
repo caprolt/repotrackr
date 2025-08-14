@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, GitBranch, Clock, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import { Plus, GitBranch, Clock, CheckCircle, AlertCircle, XCircle, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -53,6 +53,23 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Failed to refresh project:', err);
     }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      try {
+        await api.deleteProject(projectId);
+        // Refresh the projects list
+        await fetchProjects();
+      } catch (err) {
+        console.error('Failed to delete project:', err);
+        setError(err instanceof Error ? err.message : 'Failed to delete project');
+      }
+    }
+  };
+
+  const handleEditProject = (projectId: string) => {
+    router.push(`/projects/${projectId}/edit`);
   };
 
   if (loading) {
@@ -149,6 +166,26 @@ export default function Dashboard() {
                   onClick={() => handleRefreshProject(project.id)}
                 >
                   Refresh
+                </Button>
+              </div>
+              
+              <div className="flex gap-2 mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => handleEditProject(project.id)}
+                >
+                  <Edit className="w-4 h-4 mr-1" />
+                  Edit
+                </Button>
+                <Button 
+                  variant="danger" 
+                  size="sm"
+                  onClick={() => handleDeleteProject(project.id)}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete
                 </Button>
               </div>
             </Card>
