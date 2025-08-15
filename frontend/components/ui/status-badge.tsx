@@ -14,9 +14,9 @@ const StatusBadge = forwardRef<HTMLSpanElement, StatusBadgeProps>(
         className={cn(
           'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
           {
-            'bg-success-100 text-success-800': status === 'green',
-            'bg-warning-100 text-warning-800': status === 'yellow',
-            'bg-danger-100 text-danger-800': status === 'red',
+            'bg-green-100 text-green-800': status === 'green',
+            'bg-yellow-100 text-yellow-800': status === 'yellow',
+            'bg-red-100 text-red-800': status === 'red',
             'bg-gray-100 text-gray-800': status === 'gray',
           },
           className

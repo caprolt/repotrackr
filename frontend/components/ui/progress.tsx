@@ -48,7 +48,7 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
               cy={radius}
               className={cn(
                 'transition-all duration-300 ease-in-out',
-                color || 'text-primary-600'
+                color || 'text-blue-600'
               )}
             />
             <circle
@@ -87,7 +87,7 @@ const Progress = forwardRef<HTMLDivElement, ProgressProps>(
           <div
             className={cn(
               'h-full transition-all duration-300 ease-in-out rounded-full',
-              color || 'bg-primary-600'
+              color || 'bg-blue-600'
             )}
             style={{ width: `${clampedPercentage}%` }}
           />

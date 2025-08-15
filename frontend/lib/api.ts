@@ -124,4 +124,5 @@ export const api = {
   deleteProject: (id: string) => apiClient.deleteProject(id),
   refreshProject: (id: string) => apiClient.refreshProject(id),
   getProjectDetail: (id: string) => apiClient.getProjectDetail(id),
+  getProjectTasks: (id: string) => apiClient.getProjectTasks(id),
 };

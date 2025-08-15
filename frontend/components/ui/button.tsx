@@ -14,9 +14,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
           {
             // Variants
-            'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500': variant === 'primary',
+            'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500': variant === 'primary',
             'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500': variant === 'secondary',
-            'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500': variant === 'danger',
+            'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500': variant === 'danger',
             'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-500': variant === 'outline',
             // Sizes
             'h-8 px-3 text-sm': size === 'sm',

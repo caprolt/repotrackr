@@ -6,6 +6,13 @@ export interface Project {
   status: 'green' | 'yellow' | 'red';
   last_updated: string;
   created_at: string;
+  progress_percentage?: number;
+  task_breakdown?: {
+    todo: number;
+    doing: number;
+    done: number;
+    blocked: number;
+  };
 }
 
 export interface ProjectListResponse {
