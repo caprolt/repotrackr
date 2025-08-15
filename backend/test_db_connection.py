@@ -1,80 +1,66 @@
 #!/usr/bin/env python3
 """
-Database connection test script for debugging Railway deployment
+Simple database connection test script
 """
 
 import os
+import sys
 import asyncio
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+import asyncpg
+from app.core.config import settings
 
-async def test_async_connection():
-    """Test async database connection"""
-    print("Testing async database connection...")
+async def test_database_connection():
+    """Test database connection using asyncpg directly."""
+    print("🔍 Testing database connection...")
     
-    # Get DATABASE_URL from environment
-    database_url = os.getenv('DATABASE_URL')
+    # Get database URL
+    database_url = settings.DATABASE_URL
     if not database_url:
-        print("ERROR: DATABASE_URL environment variable is not set!")
+        print("❌ DATABASE_URL is not set!")
         return False
     
-    # Mask password for security
-    import re
-    masked_url = re.sub(r':([^@]+)@', ':****@', database_url)
-    print(f"Using DATABASE_URL: {masked_url}")
+    # Convert to sync URL for testing
+    sync_url = database_url
+    if sync_url.startswith('postgresql+asyncpg://'):
+        sync_url = sync_url.replace('postgresql+asyncpg://', 'postgresql://', 1)
+    
+    print(f"📋 Testing connection to: {sync_url.split('@')[1] if '@' in sync_url else sync_url}")
     
     try:
-        # Import and use the app's database setup
-        from app.db.base import get_async_session_factory
+        # Test connection
+        conn = await asyncpg.connect(sync_url)
+        print("✅ Database connection successful!")
         
-        # Get session factory (this will initialize the engine)
-        async_session_factory = get_async_session_factory()
+        # Test a simple query
+        result = await conn.fetchval('SELECT version()')
+        print(f"📊 PostgreSQL version: {result}")
         
-        # Test connection using the app's session factory
-        async with async_session_factory() as session:
-            result = await session.execute(text("SELECT 1"))
-            print("✅ Async connection successful!")
-            return True
-            
+        await conn.close()
+        return True
+        
     except Exception as e:
-        print(f"❌ Async connection failed: {e}")
+        print(f"❌ Database connection failed: {e}")
         return False
 
-def test_sync_connection():
-    """Test sync database connection (disabled - using async only)"""
-    print("Testing sync database connection...")
-    print("⚠️  Sync connection test disabled - using async only")
-    return True
-
-def print_environment_info():
-    """Print environment information for debugging"""
-    print("=== Environment Information ===")
-    print(f"ENVIRONMENT: {os.getenv('ENVIRONMENT', 'not set')}")
-    print(f"RAILWAY_ENVIRONMENT: {os.getenv('RAILWAY_ENVIRONMENT', 'not set')}")
-    print(f"PORT: {os.getenv('PORT', 'not set')}")
-    print(f"DATABASE_URL: {'set' if os.getenv('DATABASE_URL') else 'not set'}")
-    print(f"REDIS_URL: {'set' if os.getenv('REDIS_URL') else 'not set'}")
-    print("================================")
-
-async def main():
-    """Main test function"""
-    print("🔍 Database Connection Test")
+def main():
+    """Main function."""
+    print("🚀 Database Connection Test")
     print("=" * 40)
     
     # Print environment info
-    print_environment_info()
+    print(f"Environment: {os.getenv('ENVIRONMENT', 'not set')}")
+    print(f"Railway Environment: {os.getenv('RAILWAY_ENVIRONMENT', 'not set')}")
+    print(f"Port: {os.getenv('PORT', 'not set')}")
     
-    # Test async connection only
-    async_success = await test_async_connection()
+    # Test connection
+    success = asyncio.run(test_database_connection())
     
-    print("\n" + "=" * 40)
-    if async_success:
-        print("✅ Async database connection successful!")
-        return True
+    if success:
+        print("\n✅ Database connection test passed!")
+        sys.exit(0)
     else:
-        print("❌ Async database connection failed!")
-        return False
+        print("\n❌ Database connection test failed!")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
