@@ -18,7 +18,15 @@
 
 **Solution**: ✅ **FIXED** - Added retry logic for configuration loading with gradual backoff.
 
-### 3. Missing DATABASE_URL Environment Variable
+### 3. Git Executable Errors
+
+**Error**: `ImportError: Bad git executable.`
+
+**Cause**: Docker image doesn't have Git installed, but the application uses GitPython for repository operations.
+
+**Solution**: ✅ **FIXED** - Added Git and SSH support to Dockerfile.
+
+### 4. Missing DATABASE_URL Environment Variable
 
 **Error**: `DATABASE_URL is required in Railway`
 
@@ -29,7 +37,7 @@
 2. Click "New Service" → "Database" → "PostgreSQL"
 3. Railway will automatically inject `DATABASE_URL` into your app service
 
-### 4. Database Connection Timeout
+### 5. Database Connection Timeout
 
 **Error**: Connection timeout or refused during startup
 
@@ -37,7 +45,7 @@
 
 **Solution**: ✅ **FIXED** - Added retry logic with exponential backoff in `start.py`
 
-### 5. Port Configuration Issues
+### 6. Port Configuration Issues
 
 **Error**: App not accessible on Railway
 
@@ -46,7 +54,7 @@
 port = int(os.getenv("PORT", 8000))
 ```
 
-### 6. Health Check Failures
+### 7. Health Check Failures
 
 **Error**: Railway health checks failing
 
@@ -71,6 +79,7 @@ port = int(os.getenv("PORT", 8000))
 
 1. **Build Phase**: 
    - ✅ Dependencies installed
+   - ✅ Git and SSH support installed
    - ✅ Railway environment diagnosed
    - ✅ Database connection tested
    - ✅ Database setup verified
@@ -93,6 +102,11 @@ Run diagnostics:
 python diagnose_railway.py
 ```
 
+Test Git functionality:
+```bash
+git --version
+```
+
 ## Environment Variables
 
 Railway automatically provides:
@@ -111,6 +125,11 @@ python diagnose_railway.py
 ### Test Database Connection
 ```bash
 python test_db_connection.py
+```
+
+### Test Git Installation
+```bash
+git --version
 ```
 
 ### Run Migrations Manually
@@ -159,6 +178,7 @@ If you're still experiencing issues:
 6. **Fixed configuration loading** - Added retry logic for settings loading
 7. **Separated DATABASE_URL and DATABASE_URL_SYNC validation** - Prevents validation conflicts
 8. **Enhanced Alembic configuration** - Better error handling for missing database URLs
+9. **Added Git support** - Installed Git and SSH client for repository operations
 
 ## Startup Process
 
@@ -180,3 +200,11 @@ The new startup process follows this sequence:
 4. **Application Startup**
    - Starts the FastAPI application
    - Uses the `PORT` environment variable
+
+## System Dependencies
+
+The Docker image now includes:
+- **Git** - Required for GitPython repository operations
+- **OpenSSH Client** - For SSH-based Git operations
+- **CA Certificates** - For HTTPS Git operations
+- **GCC** - For compiling Python packages

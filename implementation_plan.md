@@ -46,6 +46,7 @@
 - [x] Implement proper health checks
 - [x] Create comprehensive troubleshooting guide
 - [x] Add database connection testing
+- [x] Fix Git dependency issues (add Git to Docker image)
 - [ ] Deploy on Railway with HTTPS and domain
 - [ ] Set up CI/CD pipeline
 
