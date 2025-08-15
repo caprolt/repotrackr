@@ -21,5 +21,5 @@ COPY . .
 # Expose port
 EXPOSE $PORT
 
-# Start the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$PORT"]
+# Start the application using the startup script
+CMD ["python", "start.py"]

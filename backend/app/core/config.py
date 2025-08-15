@@ -42,9 +42,9 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
     
-    @validator("DATABASE_URL", "DATABASE_URL_SYNC", pre=True)
-    def validate_database_url(cls, v, values):
-        """Validate and ensure database URLs are properly set"""
+    @validator("DATABASE_URL", pre=True)
+    def validate_database_url(cls, v):
+        """Validate and ensure DATABASE_URL is properly set"""
         # Check if we're in Railway/production environment
         is_railway = (
             os.getenv("RAILWAY_ENVIRONMENT") or 
@@ -65,19 +65,47 @@ class Settings(BaseSettings):
                 )
             else:
                 # Fallback to local development
-                return "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr" if "DATABASE_URL" in values else "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+                return "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
         
         # Ensure DATABASE_URL uses asyncpg for async operations
-        if "DATABASE_URL" in values and v.startswith("postgresql://"):
+        if v.startswith("postgresql://"):
             v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
         
-        # Handle Railway's DATABASE_URL format
-        if "DATABASE_URL" in values and ("railway.app" in v or is_railway):
-            # Railway provides postgresql:// format, convert to asyncpg
-            if v.startswith("postgresql://"):
-                v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
-        
         return v
+    
+    @validator("DATABASE_URL_SYNC", pre=True)
+    def validate_database_url_sync(cls, v, values):
+        """Validate and ensure DATABASE_URL_SYNC is properly set"""
+        # If DATABASE_URL_SYNC is explicitly set, use it
+        if v:
+            # Ensure it uses sync driver
+            if v.startswith("postgresql+asyncpg://"):
+                v = v.replace("postgresql+asyncpg://", "postgresql://", 1)
+            return v
+        
+        # Otherwise, derive from DATABASE_URL
+        database_url = values.get("DATABASE_URL", "")
+        if database_url:
+            # Convert async URL to sync URL
+            sync_url = database_url
+            if sync_url.startswith("postgresql+asyncpg://"):
+                sync_url = sync_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+            return sync_url
+        
+        # Check if we're in Railway/production environment
+        is_railway = (
+            os.getenv("RAILWAY_ENVIRONMENT") or 
+            os.getenv("ENVIRONMENT") == "production" or
+            os.getenv("RAILWAY_SERVICE_NAME") or
+            os.getenv("PORT")  # Railway always sets PORT
+        )
+        
+        if is_railway:
+            # In Railway, wait for DATABASE_URL to be set
+            return ""
+        else:
+            # Fallback to local development
+            return "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
     
     class Config:
         env_file = ".env"

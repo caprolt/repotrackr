@@ -5,6 +5,7 @@ from alembic import context
 from app.core.config import settings
 from app.db.base import Base
 from app.db.models import Project, Task, ProgressSnapshot, Skill
+import os
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,6 +26,39 @@ target_metadata = Base.metadata
 # ... etc.
 
 
+def get_database_url():
+    """Get the database URL for Alembic migrations."""
+    # Try to get DATABASE_URL from settings
+    database_url = settings.DATABASE_URL
+    
+    if not database_url:
+        # Check if we're in Railway and DATABASE_URL should be available
+        is_railway = (
+            os.getenv("RAILWAY_ENVIRONMENT") or 
+            os.getenv("ENVIRONMENT") == "production" or
+            os.getenv("RAILWAY_SERVICE_NAME") or
+            os.getenv("PORT")
+        )
+        
+        if is_railway:
+            raise ValueError(
+                "DATABASE_URL is not available. "
+                "Please ensure you have added a PostgreSQL service to your Railway project. "
+                f"Current environment: ENVIRONMENT={os.getenv('ENVIRONMENT')}, "
+                f"RAILWAY_ENVIRONMENT={os.getenv('RAILWAY_ENVIRONMENT')}, "
+                f"PORT={os.getenv('PORT')}"
+            )
+        else:
+            # Fallback to local development
+            database_url = "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+    
+    # Convert async URL to sync URL for Alembic
+    if database_url.startswith('postgresql+asyncpg://'):
+        database_url = database_url.replace('postgresql+asyncpg://', 'postgresql://', 1)
+    
+    return database_url
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -37,16 +71,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    # Convert async URL to sync URL for Alembic
-    url = settings.DATABASE_URL
-    if url.startswith('postgresql+asyncpg://'):
-        url = url.replace('postgresql+asyncpg://', 'postgresql://', 1)
-    elif url.startswith('postgresql://'):
-        # Already sync URL
-        pass
-    else:
-        # Fallback to sync URL
-        url = settings.DATABASE_URL_SYNC or url
+    url = get_database_url()
     
     context.configure(
         url=url,
@@ -68,18 +93,9 @@ def run_migrations_online() -> None:
     """
     configuration = config.get_section(config.config_ini_section)
     
-    # Convert async URL to sync URL for Alembic
-    url = settings.DATABASE_URL
-    if url.startswith('postgresql+asyncpg://'):
-        url = url.replace('postgresql+asyncpg://', 'postgresql://', 1)
-    elif url.startswith('postgresql://'):
-        # Already sync URL
-        pass
-    else:
-        # Fallback to sync URL
-        url = settings.DATABASE_URL_SYNC or url
-    
+    url = get_database_url()
     configuration["sqlalchemy.url"] = url
+    
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",

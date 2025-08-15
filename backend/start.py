@@ -9,7 +9,43 @@ import uvicorn
 import subprocess
 import sys
 import time
-from app.core.config import settings
+
+def load_settings_with_retry():
+    """Load settings with retry logic for Railway deployment."""
+    max_retries = 10
+    retry_delay = 3
+    
+    for attempt in range(max_retries):
+        try:
+            print(f"📋 Loading configuration attempt {attempt + 1}/{max_retries}")
+            
+            # Import settings
+            from app.core.config import settings
+            
+            # Check if DATABASE_URL is available
+            if not settings.DATABASE_URL:
+                print("⏳ DATABASE_URL not available yet, waiting...")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    retry_delay *= 1.5  # Gradual backoff
+                    continue
+                else:
+                    raise ValueError("DATABASE_URL not available after all retries")
+            
+            print("✅ Configuration loaded successfully")
+            return settings
+            
+        except Exception as e:
+            print(f"❌ Configuration loading attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                print(f"⏳ Waiting {retry_delay} seconds before retry...")
+                time.sleep(retry_delay)
+                retry_delay *= 1.5
+            else:
+                print("❌ All configuration loading attempts failed.")
+                raise
+    
+    raise RuntimeError("Failed to load configuration after all retries")
 
 def run_migrations():
     """Run database migrations before starting the application."""
@@ -91,8 +127,15 @@ def test_database_connection():
 def main():
     """Start the FastAPI application with proper configuration."""
     print("🚀 Starting RepoTrackr API...")
-    print(f"📊 Environment: {settings.ENVIRONMENT}")
-    print(f"🔧 Debug mode: {settings.DEBUG}")
+    
+    # Load settings with retry logic
+    try:
+        settings = load_settings_with_retry()
+        print(f"📊 Environment: {settings.ENVIRONMENT}")
+        print(f"🔧 Debug mode: {settings.DEBUG}")
+    except Exception as e:
+        print(f"❌ Failed to load configuration: {e}")
+        sys.exit(1)
     
     # Test database connection first
     print("🔍 Testing database connectivity...")

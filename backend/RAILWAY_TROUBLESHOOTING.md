@@ -10,7 +10,15 @@
 
 **Solution**: ✅ **FIXED** - Migrations now run at startup instead of build time.
 
-### 2. Missing DATABASE_URL Environment Variable
+### 2. Configuration Loading Errors
+
+**Error**: `DATABASE_URL is required in Railway` during configuration loading
+
+**Cause**: Pydantic settings validation fails when `DATABASE_URL` is not immediately available.
+
+**Solution**: ✅ **FIXED** - Added retry logic for configuration loading with gradual backoff.
+
+### 3. Missing DATABASE_URL Environment Variable
 
 **Error**: `DATABASE_URL is required in Railway`
 
@@ -21,7 +29,7 @@
 2. Click "New Service" → "Database" → "PostgreSQL"
 3. Railway will automatically inject `DATABASE_URL` into your app service
 
-### 3. Database Connection Timeout
+### 4. Database Connection Timeout
 
 **Error**: Connection timeout or refused during startup
 
@@ -29,7 +37,7 @@
 
 **Solution**: ✅ **FIXED** - Added retry logic with exponential backoff in `start.py`
 
-### 4. Port Configuration Issues
+### 5. Port Configuration Issues
 
 **Error**: App not accessible on Railway
 
@@ -38,7 +46,7 @@
 port = int(os.getenv("PORT", 8000))
 ```
 
-### 5. Health Check Failures
+### 6. Health Check Failures
 
 **Error**: Railway health checks failing
 
@@ -68,6 +76,7 @@ port = int(os.getenv("PORT", 8000))
    - ✅ Database setup verified
 
 2. **Startup Phase**:
+   - ✅ Configuration loaded with retry logic
    - ✅ Database connection tested
    - ✅ Migrations run with retry logic
    - ✅ Application starts on correct port
@@ -147,3 +156,27 @@ If you're still experiencing issues:
 3. **Enhanced error reporting** - Better debugging information
 4. **Improved health checks** - More robust health endpoint
 5. **Added connection testing** - Validates database connectivity before startup
+6. **Fixed configuration loading** - Added retry logic for settings loading
+7. **Separated DATABASE_URL and DATABASE_URL_SYNC validation** - Prevents validation conflicts
+8. **Enhanced Alembic configuration** - Better error handling for missing database URLs
+
+## Startup Process
+
+The new startup process follows this sequence:
+
+1. **Configuration Loading** (with retry logic)
+   - Attempts to load settings up to 10 times
+   - Waits for `DATABASE_URL` to become available
+   - Uses gradual backoff between attempts
+
+2. **Database Connection Test**
+   - Tests connectivity before proceeding
+   - Uses the same retry logic for configuration
+
+3. **Database Migrations**
+   - Runs Alembic migrations with retry logic
+   - Up to 5 attempts with exponential backoff
+
+4. **Application Startup**
+   - Starts the FastAPI application
+   - Uses the `PORT` environment variable

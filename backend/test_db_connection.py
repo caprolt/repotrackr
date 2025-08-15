@@ -7,11 +7,36 @@ import os
 import sys
 import asyncio
 import asyncpg
-from app.core.config import settings
+import time
+
+def load_settings_with_retry():
+    """Load settings with retry logic."""
+    max_retries = 5
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            from app.core.config import settings
+            return settings
+        except Exception as e:
+            print(f"⚠️  Configuration loading attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                print(f"⏳ Waiting {retry_delay} seconds before retry...")
+                time.sleep(retry_delay)
+                retry_delay *= 1.5
+            else:
+                raise
 
 async def test_database_connection():
     """Test database connection using asyncpg directly."""
     print("🔍 Testing database connection...")
+    
+    # Load settings with retry
+    try:
+        settings = load_settings_with_retry()
+    except Exception as e:
+        print(f"❌ Failed to load configuration: {e}")
+        return False
     
     # Get database URL
     database_url = settings.DATABASE_URL
