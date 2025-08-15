@@ -53,8 +53,8 @@ fi
 if [ ! -d "alembic/versions" ]; then
     echo "🗄️  Initializing database migrations..."
     alembic init alembic
-    # Update alembic.ini with correct database URL
-    sed -i 's|sqlalchemy.url = driver://user:pass@localhost/dbname|sqlalchemy.url = postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr|' alembic.ini
+    # Update alembic.ini to use dynamic URL (credentials will be loaded from .env)
+    sed -i 's|sqlalchemy.url = driver://user:pass@localhost/dbname|# This URL will be dynamically set by env.py based on environment variables\nsqlalchemy.url = |' alembic.ini
 fi
 
 # Run database migrations

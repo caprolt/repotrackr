@@ -49,7 +49,7 @@ if not exist "alembic\versions" (
     echo 🗄️ Initializing database migrations...
     alembic init alembic
     REM Update alembic.ini with correct database URL
-    powershell -Command "(Get-Content alembic.ini) -replace 'sqlalchemy.url = driver://user:pass@localhost/dbname', 'sqlalchemy.url = postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr' | Set-Content alembic.ini"
+    powershell -Command "(Get-Content alembic.ini) -replace 'sqlalchemy.url = driver://user:pass@localhost/dbname', '# This URL will be dynamically set by env.py based on environment variables`nsqlalchemy.url = ' | Set-Content alembic.ini"
 )
 
 REM Run database migrations

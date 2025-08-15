@@ -69,8 +69,14 @@ class Settings(BaseSettings):
                     f"PORT={os.getenv('PORT')}"
                 )
             else:
-                # Fallback to local development
-                return "postgresql+asyncpg://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+                # Build DATABASE_URL from individual environment variables
+                db_host = os.getenv("DB_HOST", "localhost")
+                db_port = os.getenv("DB_PORT", "5432")
+                db_name = os.getenv("DB_NAME")
+                db_user = os.getenv("DB_USER")
+                db_password = os.getenv("DB_PASSWORD")
+                
+                return f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
         
         # Ensure DATABASE_URL uses asyncpg for async operations
         if v.startswith("postgresql://"):
@@ -109,8 +115,14 @@ class Settings(BaseSettings):
             # In Railway, wait for DATABASE_URL to be set
             return ""
         else:
-            # Fallback to local development
-            return "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+            # Build DATABASE_URL_SYNC from individual environment variables
+            db_host = os.getenv("DB_HOST", "localhost")
+            db_port = os.getenv("DB_PORT", "5432")
+            db_name = os.getenv("DB_NAME")
+            db_user = os.getenv("DB_USER")
+            db_password = os.getenv("DB_PASSWORD")
+            
+            return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     
     class Config:
         env_file = ".env"

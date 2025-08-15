@@ -49,8 +49,14 @@ def get_database_url():
                 f"PORT={os.getenv('PORT')}"
             )
         else:
-            # Fallback to local development
-            database_url = "postgresql://repotrackr:repotrackr_dev@localhost:5432/repotrackr"
+            # Build database URL from individual environment variables
+            db_host = os.getenv("DB_HOST", "localhost")
+            db_port = os.getenv("DB_PORT", "5432")
+            db_name = os.getenv("DB_NAME")
+            db_user = os.getenv("DB_USER")
+            db_password = os.getenv("DB_PASSWORD")
+            
+            database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     
     # Convert async URL to sync URL for Alembic
     if database_url.startswith('postgresql+asyncpg://'):
