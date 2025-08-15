@@ -197,3 +197,44 @@ If you encounter issues with the scripts:
 2. Verify all prerequisites are installed
 3. Ensure you're running from the project root directory
 4. Check that required ports are not in use by other applications
+
+## Add RepoTrackr plan to another repository (PR script)
+
+Use this helper to open a PR in any GitHub repo that adds a RepoTrackr-compatible planning file and optional metadata.
+
+### Prerequisites
+- GitHub CLI installed and authenticated: `gh auth login`
+- git
+- curl
+
+### What it does
+- Creates a branch in the target repository
+- Adds a self-explaining plan file (default path: `docs/plan.md`)
+- Adds `repotrackr.yml` if missing, declaring the plan path and status markers
+- Opens a Pull Request with instructions, links, and an opt-out path
+- Skips if a plan already exists at the specified path (won't overwrite)
+
+### Usage
+```bash
+./scripts/add-plan-to-repo.sh <owner/repo> [plan_path] [branch_name]
+```
+
+Examples:
+```bash
+# Basic usage with defaults (plan at docs/plan.md, branch add-repotrackr-plan)
+./scripts/add-plan-to-repo.sh youruser/yourrepo
+
+# Custom plan path and branch name
+./scripts/add-plan-to-repo.sh youruser/yourrepo planning/plan.md add-repotrackr-plan-setup
+```
+
+### After merging the PR
+1. In RepoTrackr, click "Add Project" and enter the repository URL
+2. Set the Plan Path to match the file added by the PR (defaults to `docs/plan.md`)
+3. Save; RepoTrackr will parse tasks and show progress on the dashboard
+
+### Notes
+- The PR body explains what RepoTrackr is and how to use the plan
+- The scaffold includes inline instructions and recognized status markers:
+  - `[ ]` todo, `[~]` doing, `[x]` done, `[!]` blocked
+- If the repo maintainers prefer not to use RepoTrackr, they can close the PR with no changes
