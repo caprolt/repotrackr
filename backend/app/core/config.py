@@ -28,7 +28,12 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://repotrackr-c1jjpqgz7-tannercline-5407s-projects.vercel.app",
+        "https://repotrackr.vercel.app"
+    ]
     
     # GitHub (for future use)
     GITHUB_TOKEN: str = ""
