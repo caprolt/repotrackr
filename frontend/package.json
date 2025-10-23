@@ -2,6 +2,21 @@
   "name": "repotrackr-frontend",
   "version": "0.1.0",
   "private": true,
+  "description": "Automated project tracking system that connects to GitHub repositories and visualizes project progress",
+  "author": "Tanner Caprolt <your.email@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caprolt/repotrackr.git"
+  },
+  "keywords": [
+    "project-management",
+    "github",
+    "tracking",
+    "automation",
+    "nextjs",
+    "typescript"
+  ],
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
